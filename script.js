@@ -1,42 +1,66 @@
-//On prend les éléments du DOM
-    const errorMessage = document.querySelector("#error-message");
-    const formulaire = document.querySelector("form");
-    
-//Plus particulièrement les div de commentaires
-    const commentList = document.querySelector("#comment-list");
-    const sampleComment = document.querySelector("#comment-list > div:nth-child(2)");
+// On récupère les éléments du DOM
+const errorMessage = document.querySelector("#error-message");
+const formulaire = document.querySelector("#form");
+const commentList = document.querySelector("#comment-list");
 
-//On va effectuer un clone
-    const newComment = sampleComment.cloneNode(true);
-    const newCommentH3 = newComment.querySelector(".font-medium, .text-gray-900");
-    const newCommentP = newComment.querySelector(".prose, .prose-sm, .mt-4, .max-w-none, .text-gray-500");
+// On prend un commentaire existant comme modèle
+const sampleComment = document.querySelector("#comment-list > div");
 
-//Function myFunction
-function myFunction () {
-    document.getElementById('form').reset();
-};
+// Afficher le message d'erreur
+function showError() {
+  errorMessage.style.display = "block";
+}
 
-//soumission du form
-formulaire.addEventListener("submit", (event) => {
-    event.preventDefault();
-    
-//On prend les valeurs
-    const firstName = document.getElementById('first-name').value.trim();
-    const lastName = document.getElementById('last-name').value.trim();
-    const message = document.getElementById('message').value.trim(); 
-    
-//On vérifie si les champs sont vides
-    if (!firstName|| !lastName|| !message ) {
-    errorMessage.style.display = 'block';
-    } else {
-    errorMessage.style.display = 'none';
-    newCommentH3.textContent = `${firstName} ${lastName}`;
-    newCommentP.textContent = message;
-    
-// ajout le clone dans le dom
-    commentList.appendChild(newComment);
+// Cacher le message d'erreur
+function hideError() {
+  errorMessage.style.display = "none";
+}
 
-//On réinitialise le formulaire   
-    myFunction(); 
-    }
-});
+// Vérifier si un ou plusieurs champs sont vides
+function checkErrors(firstName, lastName, message) {
+  return firstName === "" || lastName === "" || message === "";
+}
+
+// Ajouter un nouveau commentaire
+function addComment(firstName, lastName, message) {
+  // On clone le commentaire modèle à chaque envoi
+  const newComment = sampleComment.cloneNode(true);
+
+  // On récupère les éléments à modifier dans le clone
+  const content = newComment.querySelector(".flex-1");
+  const title = newComment.querySelector("h3");
+  const paragraph = newComment.querySelector("p");
+
+  content.classList.add("border-t", "border-gray-200");
+
+  // On remplace le contenu
+  title.textContent = `${firstName} ${lastName}`;
+  paragraph.textContent = message;
+
+  // On ajoute le nouveau commentaire dans la liste
+  commentList.appendChild(newComment);
+}
+
+// Gérer l'envoi du formulaire
+function handleSubmit(event) {
+  event.preventDefault();
+
+  // On récupère les valeurs saisies
+  const firstName = document.querySelector("#first-name").value.trim();
+  const lastName = document.querySelector("#last-name").value.trim();
+  const message = document.querySelector("#message").value.trim();
+
+  // Vérification des champs vides
+  if (checkErrors(firstName, lastName, message)) {
+    showError();
+    return;
+  }
+
+  // Si tout est rempli
+  hideError();
+  addComment(firstName, lastName, message);
+  formulaire.reset();
+}
+
+// Écoute de la soumission du formulaire
+formulaire.addEventListener("submit", handleSubmit);
